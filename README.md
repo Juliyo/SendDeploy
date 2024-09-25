@@ -1,8 +1,6 @@
-# Example Package
+# SendDeploy
 
-This is a simple example package. You can use
-[GitHub-flavored Markdown](https://guides.github.com/features/mastering-markdown/)
-to write your content.
+A CLI tool to upload a file via SCP
 
 # Prerequisites
 
@@ -25,7 +23,3 @@ python3 -m build
 ```bash
 python3 -m twine upload dist/*
 ```
-
-# External links
-
-[pypi packaging projects](https://packaging.python.org/tutorials/packaging-projects/)

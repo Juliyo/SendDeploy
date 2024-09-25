@@ -85,7 +85,7 @@ def copy_key_to_server(public_key_path, server, user, password):
             ssh_client.exec_command('icacls C:\\Users\\' + user + '\\.ssh\\authorized_keys /grant "' + user + ':(F)"')
 
             print(f"Public key copied to {server}:{user}'s authorized_keys on Windows.")
-            
+
         
     except Exception as e:
         print(f"Failed to copy key: {e}")
@@ -95,25 +95,27 @@ def copy_key_to_server(public_key_path, server, user, password):
 
 def main():
     # Set up argument parsing
-    parser = argparse.ArgumentParser(description="A CLI tool to upload a file via SCP")
-    parser.add_argument("filename", type=str, nargs='?', help="The path to the file to upload")
-    parser.add_argument("--copy-key", action='store_true', help="Generate SSH key and copy to the destination server")
+    parser = argparse.ArgumentParser(description="A CLI tool to manage SSH keys and upload files via SCP")
+    
+    parser.add_argument("filename", help="The path to the file to upload (required if action is 'file')")
 
     args = parser.parse_args()
 
-    if args.copy_key:
-        # Handle the copy key functionality
-        ssh_ip = input("Enter SSH server IP address: ")
-        ssh_user = input("Enter SSH username: ")
-        ssh_password = getpass.getpass("Enter SSH password: ")
-
-        # Generate SSH key
-        public_key_path = generate_ssh_key()
-
-        # Copy the public key to the server
-        copy_key_to_server(public_key_path, ssh_ip, ssh_user, ssh_password)
-
-        return  # Exit after copying the key
+    #if args.action == 'genkey':
+    #    # Handle the copy key functionality
+    #    ssh_ip = input("Enter SSH server IP address: ")
+    #    ssh_user = input("Enter SSH username: ")
+    #    ssh_password = getpass.getpass("Enter SSH password: ")
+#
+    #    # Generate SSH key
+    #    public_key_path = generate_ssh_key()
+#
+    #    # Copy the public key to the server
+    #    copy_key_to_server(public_key_path, ssh_ip, ssh_user, ssh_password)
+#
+    #    return  # Exit after copying the key
+#
+    #elif args.action == 'file':
 
     # Load the last used configuration
     config = load_config()

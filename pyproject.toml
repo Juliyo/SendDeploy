@@ -7,13 +7,13 @@ version = "0.0.1"
 authors = [
   { name="Julio Zamora", email="julio17795@gmail.com" },
 ]
-description = "A small example package"
+description = "A CLI tool to upload a file via SCP"
 readme = "README.md"
 dependencies = ["paramiko", "scp"]
 
 [project.urls]
-Homepage = "https://github.com/pypa/sampleproject"
-Issues = "https://github.com/pypa/sampleproject/issues"
+Homepage = "https://github.com/Juliyo/SendDeploy"
+Issues = "https://github.com/Juliyo/SendDeploy/issues"
 
 # Specify the CLI entry point here
 [project.scripts]

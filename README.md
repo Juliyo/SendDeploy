@@ -5,7 +5,7 @@ A CLI tool to manage SSH keys and upload files via SCP
 # Usage
 
 ```bash
-SendDeploy [-h] {genkey,file} [filename]
+SendDeploy [-h] filename
 ```
 
 # Development

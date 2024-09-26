@@ -1,6 +1,6 @@
 # SendDeploy
 
-A CLI tool to manage SSH keys and upload files via SCP
+A CLI tool to upload files via SCP from Windows
 
 # Usage
 
@@ -13,21 +13,21 @@ SendDeploy [-h] filename
 ## Prerequisites
 
 ```bash
-python3 -m pip install --upgrade build
+python -m pip install --upgrade build
 ```
 
 ```bash
-python3 -m pip install --upgrade twine
+python -m pip install --upgrade twine
 ```
 
 ## Build package
 
 ```bash
-python3 -m build
+python -m build
 ```
 
 ## Upload package
 
 ```bash
-python3 -m twine upload dist/*
+python -m twine upload dist/*
 ```

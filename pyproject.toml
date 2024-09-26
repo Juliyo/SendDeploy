@@ -3,11 +3,11 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 [project]
 name = "SendDeploy"
-version = "0.0.3"
+version = "0.0.4"
 authors = [
   { name="Julio Zamora", email="julio17795@gmail.com" },
 ]
-description = "A CLI tool to manage SSH keys and upload files via SCP"
+description = "A CLI tool to upload files via SCP from Windows"
 readme = "README.md"
 dependencies = ["paramiko", "scp"]
 

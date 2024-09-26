@@ -7,8 +7,7 @@ import getpass
 import json
 import os
 
-CONFIG_PATH = os.path.expanduser("~/.SendDeploy.json")
-KEY_PATH = os.path.expanduser("~/.ssh/id_rsa")  # Default SSH key path
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'SendDeploy.json')
 
 def load_config():
     """Load configuration from the file."""
@@ -64,9 +63,21 @@ def main():
                 remote_path = last_remote_path
         else:
             # Ask user for other SSH details since a new IP was entered
-            ssh_user = input("Enter SSH username: ")
-            ssh_password = getpass.getpass("Enter SSH password: ")
-            remote_path = input("Enter remote path to upload the file (e.g., /remote/path/): ")
+            # Show the last used IP
+            print(f"Last SSH username: {last_user}")
+            ssh_user = input("Enter SSH username (leave blank to use last SSH username): ")
+            if not ssh_user:
+                ssh_user = last_user
+
+            print(f"Last SSH password: {last_password}")
+            ssh_password = getpass.getpass("Enter SSH password (leave blank to use last SSH password): ")
+            if not ssh_password:
+                ssh_password = last_password
+
+            print(f"Last remote path: {last_remote_path}")
+            remote_path = input("Enter remote path to upload the file (e.g., /remote/path/) (leave blank to use last remote path): ")
+            if not remote_path:
+                remote_path = last_remote_path
 
     # Connect to the SSH server and upload the file
     try:
@@ -74,10 +85,6 @@ def main():
         with SCPClient(ssh_client.get_transport()) as scp:
             scp.put(args.filename, remote_path)
             print(f"File '{args.filename}' successfully uploaded to {remote_path} on {ssh_ip}")
-
-        # Save the SSH details to the config file
-        config.update({"ip": ssh_ip, "username": ssh_user, "password": ssh_password, "remote_path": remote_path})
-        save_config(config)
 
     except FileNotFoundError:
         print(f"Error: The file '{args.filename}' was not found.")
@@ -88,6 +95,9 @@ def main():
     finally:
         if 'ssh_client' in locals():
             ssh_client.close()
+        # Save the SSH details to the config file
+        config.update({"ip": ssh_ip, "username": ssh_user, "password": ssh_password, "remote_path": remote_path})
+        save_config(config)
 
 if __name__ == "__main__":
     main()

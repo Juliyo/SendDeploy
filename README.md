@@ -26,6 +26,12 @@ python -m pip install --upgrade twine
 python -m build
 ```
 
+## Install from source
+
+```bash
+pip install -e .
+```
+
 ## Upload package
 
 ```bash

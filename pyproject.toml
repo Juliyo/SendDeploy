@@ -9,7 +9,7 @@ authors = [
 ]
 description = "A CLI tool to upload files via SCP from Windows"
 readme = "README.md"
-dependencies = ["paramiko", "scp"]
+dependencies = ["paramiko", "scp", "windows-curses", "tqdm"]
 
 [project.urls]
 Homepage = "https://github.com/Juliyo/SendDeploy"

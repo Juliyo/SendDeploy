@@ -2,15 +2,11 @@
 
 import argparse
 import paramiko
-from scp import SCPClient
-import getpass
 import json
 import os
 import curses
-import sys
-import signal
+from scp import SCPClient
 from tqdm import tqdm
-import scp
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'SendDeployV2.json')
 
@@ -53,37 +49,37 @@ def create_ssh_client(server, user, password):
     ssh.connect(server, username=user, password=password)
     return ssh
 
-# Callback function to update the progress bar
+# Function to create a progress bar and update it during the SCP transfer
 def progress(filename, size, sent):
     # Update the progress bar with the sent data
     progress_bar.update(sent - progress_bar.n)
-    
+
 def send_file(filename, ssh_ip, ssh_user, ssh_password, remote_path):
     # Connect to the SSH server and upload the file
     try:
         ssh_client = create_ssh_client(ssh_ip, ssh_user, ssh_password)
 
+        # Create the SCP transport and SCPClient instance
+        transport = ssh_client.get_transport()
+
         # Get the file size
         file_size = os.path.getsize(filename)
 
+        # Create a progress bar for the upload
         global progress_bar
-        progress_bar = tqdm(total=file_size, unit='B', unit_scale=True, desc=filename)
-
-         # Create the SCP transport and SCPClient instance
-        transport = ssh_client.get_transport()
-        scp_client = scp.SCPClient(transport, progress=progress)  # Use our custom progress function
-
-        # Upload the file with progress tracking
-        scp_client.put(filename, remote_path)
-
-        #with SCPClient(ssh_client.get_transport()) as scp:
-        #    #scp.put(filename, remote_path, callback=progress_callback)
-        #    #Upload the file with the progress bar callback
-        #    scp.put(filename, remote_path, callback=lambda sent, total: progress(filename, total, sent))
-        #    print(f"File '{filename}' successfully uploaded to {remote_path} on {ssh_ip}")
-#
+        progress_bar = tqdm(total=file_size, unit='B', unit_scale=True, desc=filename, ncols=100)
+        
+        with SCPClient(transport, progress=progress) as scp_client:
+            # Upload the file with progress tracking
+            scp_client.put(filename, remote_path)
+            progress_bar.n = file_size
+            progress_bar.refresh()
+            progress_bar.close()
+            tqdm.write(f"File '{filename}' successfully uploaded to {remote_path} on {ssh_ip}")
+            
+        
     except FileNotFoundError:
-        print(f"Error: The file '{args.filename}' was not found.")
+        print(f"Error: The file '{filename}' was not found.")
     except paramiko.AuthenticationException:
         print("Authentication failed, please verify your SSH credentials.")
     except Exception as e:
@@ -187,6 +183,17 @@ def application(stdscr):
 
     if last_selected_idx == -1:
         last_selected_idx = 0
+
+    if args.quiet:
+        # Ends curses mode to display the selected entry details
+        curses.endwin()
+        if not entries:
+            print("No connections found. Add a new connection.")
+            return
+        # After selecting an entry, show the selected entry details
+        print(f"Copying file {args.filename} to: IP: {entries[last_selected_idx]['ssh_ip']}, User: {entries[last_selected_idx]['ssh_user']}, Remote path: {entries[last_selected_idx]['remote_path']}")
+        send_file(args.filename, entries[last_selected_idx]['ssh_ip'], entries[last_selected_idx]['ssh_user'], entries[last_selected_idx]['ssh_password'], entries[last_selected_idx]['remote_path'])
+        return
     
     while True:
         action = interactive_select(stdscr, entries, last_selected_idx)
@@ -221,12 +228,12 @@ def application(stdscr):
         else:
             last_selected_idx = action  # Update last selected index
             save_entries(entries, last_selected_idx)
+            # Ends curses mode to display the selected entry details
+            curses.endwin()
+
             # After selecting an entry, show the selected entry details
-            stdscr.clear()
-            stdscr.addstr(0, 0, f"Copying file to: IP: {entries[last_selected_idx]['ssh_ip']}, User: {entries[last_selected_idx]['ssh_user']}, Password: {entries[last_selected_idx]['ssh_password']}, Remote path: {entries[last_selected_idx]['remote_path']}")
-            stdscr.refresh()
+            print(f"Copying file {args.filename} to: IP: {entries[last_selected_idx]['ssh_ip']}, User: {entries[last_selected_idx]['ssh_user']}, Remote path: {entries[last_selected_idx]['remote_path']}")
             send_file(args.filename, entries[last_selected_idx]['ssh_ip'], entries[last_selected_idx]['ssh_user'], entries[last_selected_idx]['ssh_password'], entries[last_selected_idx]['remote_path'])
-            stdscr.getch()
             return
 
         # Continue looping for the user to select another action or entry
@@ -236,12 +243,17 @@ def application(stdscr):
 
 def main():
     try:
-        curses.wrapper(application)
+        stdscr = curses.initscr()
+        application(stdscr)
     except KeyboardInterrupt:
         print("\nProgram exited by user (Ctrl+C).")
+        curses.endwin()
         exit(0)
     except Exception as e:
+        curses.endwin()
         print(f"Caught an exception: {e}")
+    finally:
+        curses.endwin()
 
     
 

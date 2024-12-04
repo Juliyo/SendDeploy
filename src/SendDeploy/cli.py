@@ -112,9 +112,12 @@ def interactive_select(stdscr, entries, last_selected_idx):
     selected_idx = last_selected_idx  # Start with the last selected index
     display_menu(selected_idx)
 
+    # Enable keypad mode to capture special keys
+    stdscr.keypad(True)
+
     while True:
         key = stdscr.getch()
-        
+
         if key == curses.KEY_UP:  # Up arrow key
             if selected_idx > 0:
                 selected_idx -= 1
